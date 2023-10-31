@@ -9,13 +9,12 @@ import SwiftUI
 
 enum ButtonType: String{
     case zero, first, second, third, forth, fifth, sixth, seventh,
-    eight, nineth
+         eight, nineth
     
     case comma, equal, plus, minus, multiple, divide
     case percent, opposite, clear
     
-    
-    var ButtonDisplayName: String{
+    var buttonDisplayName: String{
         switch self{
         case .first:
             return "1"
@@ -37,8 +36,44 @@ enum ButtonType: String{
             return "9"
         case .zero:
             return "0"
+        case .clear:
+            return "C"
+        case .opposite:
+            return "+/-"
+        case .percent:
+            return "%"
+        case .divide:
+            return "/"
+        case .multiple:
+            return "X"
+        case .minus:
+            return "-"
+        case .equal:
+            return "="
+        case .comma:
+            return "."
         default:
             return ""
+        }
+    }
+    
+    var buttonColor: Color{
+        switch self{
+        case .first, .second, .third, .forth, .fifth, .sixth, .seventh, .eight, .nineth, .zero, .comma:
+            return Color("NumberButton")
+        case .divide, .multiple, .minus, .plus, .equal:
+            return Color.orange
+        case .clear, .opposite, .percent:
+            return Color.gray
+        }
+    }
+    
+    var foregroundColor: Color{
+        switch self{
+        case .clear, .opposite, .percent:
+            return .black
+        default:
+            return .white
         }
     }
 }
@@ -57,8 +92,9 @@ struct ContentView: View {
     
     private let buttonData: [[ButtonType]] = [
         [.clear, .opposite, .percent, .divide],
-        [.seventh, .eight, .nineth, .minus],
-        [.forth, .fifth, .sixth, .plus],
+        [.seventh, .eight, .nineth, .multiple],
+        [.forth, .fifth, .sixth, .minus],
+        [.first, .second, .third, .plus],
         [.zero, .zero, .comma, .equal],
         
 
@@ -70,9 +106,9 @@ struct ContentView: View {
         ZStack{
             Color.black.ignoresSafeArea()
             VStack{
-                Spacer()// 위 공간용
+                Spacer()// 윗 공간 여백
                 HStack{
-                    Spacer() //오른쪽 정렬용
+                    Spacer() //숫자 오른쪽 정렬
                     Text(totalNumber)
                         .padding()
                         .font(.system(size: 73))
@@ -87,12 +123,17 @@ struct ContentView: View {
                         
                         ForEach(line, id:\.self){ item in
                             
-                            Button(action: numberText,
+                            Button(action:{},
                                    label: {
-                                Text(item.rawValue)
+                                
+                                Text(item.buttonDisplayName)
                                 
                             })
-                            .buttonStyle(NumberButtonStyle())
+                            .frame(width: 80, height: 80)
+                            .foregroundColor(item.foregroundColor)
+                            .background(item.buttonColor)
+                            .cornerRadius(40)
+                            .font(.system(size: 34))
                         }
                         
                     }
@@ -102,10 +143,6 @@ struct ContentView: View {
             }
             
         }
-    }
-    
-    func numberText(){
-        
     }
     
     struct NumberButtonStyle: ButtonStyle {
@@ -131,6 +168,8 @@ struct ContentView: View {
     }
     
 }
+        
+        
 
 #Preview {
     ContentView()
