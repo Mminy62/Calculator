@@ -7,12 +7,40 @@
 
 import SwiftUI
 
-enum ButtonType{
-    case first, second, third, forth, fifth, sizth, seventh,
-    eight, nineth, zero
+enum ButtonType: String{
+    case zero, first, second, third, forth, fifth, sixth, seventh,
+    eight, nineth
     
-    case coma, equal, plus, minus, multiple, divide
+    case comma, equal, plus, minus, multiple, divide
     case percent, opposite, clear
+    
+    
+    var ButtonDisplayName: String{
+        switch self{
+        case .first:
+            return "1"
+        case .second:
+            return "2"
+        case .third:
+            return "3"
+        case .forth:
+            return "4"
+        case .fifth:
+            return "5"
+        case .sixth:
+            return "6"
+        case .seventh:
+            return "7"
+        case .eight:
+            return "8"
+        case .nineth:
+            return "9"
+        case .zero:
+            return "0"
+        default:
+            return ""
+        }
+    }
 }
 
 
@@ -27,14 +55,13 @@ struct ContentView: View {
                                 GridItem(.flexible())
                 ]
     
-    let num: String = ""
-    
-    private let buttonData: [[String]] = [
-        ["C", "/", "%", "$"],
-        ["7", "8", "9", "X"],
-        ["4", "5", "6", "-"],
-        ["1", "2", "3", "+"],
-        ["0", "0", ",", "="]
+    private let buttonData: [[ButtonType]] = [
+        [.clear, .opposite, .percent, .divide],
+        [.seventh, .eight, .nineth, .minus],
+        [.forth, .fifth, .sixth, .plus],
+        [.zero, .zero, .comma, .equal],
+        
+
     ]
     
     
@@ -60,8 +87,9 @@ struct ContentView: View {
                         
                         ForEach(line, id:\.self){ item in
                             
-                            Button(action: numberText, label: {
-                                    Text(item)
+                            Button(action: numberText,
+                                   label: {
+                                Text(item.rawValue)
                                 
                             })
                             .buttonStyle(NumberButtonStyle())
@@ -69,13 +97,11 @@ struct ContentView: View {
                         
                     }
                     
-                    
                 }
                 .padding(.horizontal)
             }
             
         }
-        
     }
     
     func numberText(){
