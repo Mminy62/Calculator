@@ -13,6 +13,7 @@ enum ButtonType: String{
     
     case comma, equal, plus, minus, multiple, divide
     case percent, opposite, clear
+
     
     var buttonDisplayName: String{
         switch self{
@@ -48,6 +49,8 @@ enum ButtonType: String{
             return "X"
         case .minus:
             return "-"
+        case .plus:
+            return "+"
         case .equal:
             return "="
         case .comma:
@@ -76,12 +79,23 @@ enum ButtonType: String{
             return .white
         }
     }
+    
+    var paddingValue: CGFloat{
+        switch self{
+        default:
+            return 3
+        }
+    }
+    
+    
 }
 
 
 struct ContentView: View {
     
     @State private var totalNumber: String = "0"
+    @State private var queue: String = ""
+    @State private var newNumber: Bool = false
     
     let buttons = [7, 8, 9, 4, 5, 6, 1, 2, 3].map{String($0)}
     let gridForm: [GridItem] = [GridItem(.flexible()),
@@ -95,7 +109,7 @@ struct ContentView: View {
         [.seventh, .eight, .nineth, .multiple],
         [.forth, .fifth, .sixth, .minus],
         [.first, .second, .third, .plus],
-        [.zero, .zero, .comma, .equal],
+        [.zero, .comma, .equal],
         
 
     ]
@@ -116,56 +130,96 @@ struct ContentView: View {
                     
                 }
                 
-                
-                LazyVGrid(columns: gridForm, spacing: 10) {
                     
-                    ForEach(buttonData, id: \.self){ line in
-                        
+                ForEach(buttonData, id: \.self){ line in
+                    
+                    HStack{
                         ForEach(line, id:\.self){ item in
                             
-                            Button(action:{},
+                            Button(action:{calc(item)},
                                    label: {
-                                
+                            
                                 Text(item.buttonDisplayName)
                                 
                             })
-                            .frame(width: 80, height: 80)
+                            .frame(width: item == .zero ? 170 : 80, height: 80)
                             .foregroundColor(item.foregroundColor)
                             .background(item.buttonColor)
                             .cornerRadius(40)
+                            .padding(3)
                             .font(.system(size: 34))
                         }
                         
                     }
                     
                 }
+                    
+                
                 .padding(.horizontal)
             }
             
         }
     }
     
-    struct NumberButtonStyle: ButtonStyle {
-        func makeBody(configuration: Self.Configuration) -> some View {
-            configuration.label
-                .frame(width: 80, height: 80)
-                .foregroundColor(.white)
-                .background(Color("NumberButton"))
-                .cornerRadius(40)
-                .font(.system(size: 34))
+    // 사칙연산 기능
+    func calc(_ item: ButtonType){
+        
+        // 두번째 항인지 판단
+        if "+-*/".contains(queue.last ?? "0")
+        {
+            newNumber = true
         }
+        else{
+            newNumber = false
+        }
+        
+        
+        if item == .equal{
+            let mathExpression = NSExpression(format: queue)
+            let mathValue = mathExpression.expressionValue(with: nil, context: nil) as? Int
+            queue = String(mathValue ?? 0)
+            totalNumber = queue
+            print(queue)
+        }
+        
+        else if item == .clear{
+            totalNumber = "0"
+            queue = "0"
+        }
+        
+        else if totalNumber == "0" || newNumber{
+            totalNumber = item.buttonDisplayName
+            queue += item.buttonDisplayName
+        }
+        
+        else{ // 0-9, 연산자
+            // 연산자는 입력값이 안보여야함
+            //만약에 큐에 top이 연산자면 totalNumber는 숫자로 바뀐다. totalNumber == "0" 처럼
+            switch item{
+            case .divide, .minus, .plus:
+                queue += item.buttonDisplayName
+            case .multiple:
+                queue += "*"
+            default://1-9
+                totalNumber += item.buttonDisplayName
+                queue += item.buttonDisplayName
+            }
+        }
+        
     }
     
-    struct OperatorButtonStyle: ButtonStyle {
-        func makeBody(configuration: Self.Configuration) -> some View {
-            configuration.label
-                .frame(width: 80, height: 80)
-                .foregroundColor(.white)
-                .background(Color.orange)
-                .cornerRadius(40)
-                .font(.system(size: 34))
-        }
-    }
+
+//    
+//    struct OperatorButtonStyle: ButtonStyle {
+//        func makeBody(configuration: Self.Configuration) -> some View {
+//            configuration.label
+//                .frame(width: 80, height: 80)
+//                .foregroundColor(.white)
+//                .background(Color.orange)
+//                .cornerRadius(40)
+//                .font(.system(size: 34))
+//        }
+//    }
     
 }
         
