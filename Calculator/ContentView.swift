@@ -11,7 +11,6 @@ struct ContentView: View {
     
     @State private var totalNumber: String = "0"
     @State private var queue: String = ""
-    @State private var newNumber: Bool = false
     
     private let buttonData: [[ButtonType]] = [
         [.clear, .opposite, .percent, .divide],
@@ -38,14 +37,14 @@ struct ContentView: View {
                     
                 }
                 
-                    
+                
                 ForEach(buttonData, id: \.self){ line in
                     
                     HStack{
                         ForEach(line, id:\.self){ item in
                             
                             Button(action: {
-                                (queue, newNumber, totalNumber) = Calculation().calc(item, queue, newNumber, totalNumber)
+                                (queue, totalNumber) = Calculation().calc(item, queue, totalNumber)
                             },
                                    label: {
                                 
