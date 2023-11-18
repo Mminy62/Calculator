@@ -13,60 +13,98 @@ class Calculation{
 
     
     // 사칙연산 기능
-    func calc(_ item: ContentView.ButtonType, _ queue: String, _ newNumber: Bool, _ totalNumber: String) -> (String, Bool, String){
+    func calc(_ item: ContentView.ButtonType, _ queue: String, _ totalNumber: String) -> (String, String){
         
         var queue = queue
-        var newNumber = newNumber
         var totalNumber = totalNumber
         
-        // 두번째 항인지 판단
-        if "+-*/".contains(queue.last ?? "0")
-        {
-            newNumber = true
-        }
-        else{
-            newNumber = false
+        var rightNumber: Bool = false
+        var isNumber: Bool = true
+        
+        
+        // 연산자/피연산자 인지  아닌지 파악
+        switch item{
+        case .multiple, .plus, .minus, .divide, .clear, .equal, .percent:
+            isNumber = false
+        default:
+            isNumber = true
         }
         
         
-        if item == .equal{
-            print(queue)
-            let mathExpression = NSExpression(format: queue)
-            let mathValue = mathExpression.expressionValue(with: nil, context: nil) as? Int
-            queue = String(mathValue ?? 0)
-            totalNumber = queue
-            print(queue)
-        }
-        
-        else if item == .clear{
-            totalNumber = "0"
-            queue = "0"
-        }
-        
-        else if totalNumber == "0" {
-            totalNumber = item.buttonDisplayName
-            queue = totalNumber
-        }
-        else if newNumber{
-            totalNumber = item.buttonDisplayName
-            queue += totalNumber
-        }
-        
-        else{ // 0-9, 연산자
-            // 연산자는 입력값이 안보여야함
-            //만약에 큐에 top이 연산자면 totalNumber는 숫자로 바뀐다. totalNumber == "0" 처럼
-            switch item{
-            case .divide, .minus, .plus:
-                queue += item.buttonDisplayName
-            case .multiple:
-                queue += "*"
-            default://1-9
+        if isNumber{
+            
+            // 두번째 항인지 판단
+            if "+-*/".contains(queue.last ?? "0")
+            {
+                rightNumber = true
+            }
+            else{
+                rightNumber = false
+            }
+            
+            // 계산 값이 없는 초기화 상태일때
+            if totalNumber == "0" {
+                totalNumber = item.buttonDisplayName
+                queue = item.buttonOperatorValue
+            }
+            // 연산자 뒤의 숫자인 경우
+            else if rightNumber{
+                totalNumber = item.buttonDisplayName // 화면엔 보여지고
+                queue += totalNumber // 계산은 큐에서
+            }
+            else{
+                
                 totalNumber += item.buttonDisplayName
                 queue += item.buttonDisplayName
+                
             }
+            
+            
         }
+        else{
+            
+            // = 버튼 눌렀을때 결과 보여주기
+            if item == .equal{
+                print(queue)
+                let mathExpression = NSExpression(format: queue)
+                let mathValue = mathExpression.expressionValue(with: nil, context: nil) as? Double
+                
+                // mathValue, 결과 값이 Int형인지 확인
+                if (mathValue ?? 0.0).truncatingRemainder(dividingBy: 1) == 0{
+                    queue = String(Int(mathValue ?? 0.0))
+                }
+                else{
+                    queue = String(mathValue ?? 0.0)
+                }
+                
+                totalNumber = queue
+                print(queue)
+            }
+            // 클리어로 다 지우기
+            else if item == .clear{
+                totalNumber = "0"
+                queue = "0.0"
+            }
+            else if item == .percent{
+                queue += item.buttonOperatorValue
+                print(queue)
+                let mathExpression = NSExpression(format: queue)
+                let mathValue = mathExpression.expressionValue(with: nil, context: nil) as? Double
+                queue = String(mathValue ?? 0.0)
+                totalNumber = queue
+                
+            }
+            
+            
+            else{ // 일반 연산자
+                queue += item.buttonOperatorValue
+                
+            }
 
-        return (queue, newNumber, totalNumber)
+        }
+        
+
+        return (queue, totalNumber)
     }
     
 }

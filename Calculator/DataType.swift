@@ -58,8 +58,23 @@ extension ContentView{
                 return "="
             case .comma:
                 return "."
+            }
+        }
+        
+        var buttonOperatorValue: String{
+            switch self{
+            case .opposite:
+                return "-"
+            case .percent:
+                return "* (0.01)"
+            case .divide:
+                return "/"
+            case .multiple:
+                return "*"
+            case .first, .second, .third, .forth, .fifth, .sixth, .seventh, .eight, .nineth:
+                return self.buttonDisplayName + ".0"
             default:
-                return ""
+                return self.buttonDisplayName
             }
         }
         
